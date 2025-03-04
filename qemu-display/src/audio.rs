@@ -46,7 +46,7 @@ impl PCMInfo {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Volume {
     pub mute: bool,
     pub volume: Vec<u8>,

@@ -6,7 +6,7 @@ use std::{
 use anyhow::Result;
 // use tracing::{debug, error, warn};
 use ironrdp::{
-    rdpsnd::pdu,
+    rdpsnd::pdu::{self, AudioFormatFlags},
     server::{
         RdpsndServerHandler, RdpsndServerMessage, ServerEvent, ServerEventSender,
         SoundServerFactory,
@@ -30,6 +30,8 @@ pub struct Inner {
     start_time: Instant,
     ev_sender: Option<mpsc::UnboundedSender<ServerEvent>>,
     client_fmt: Option<pdu::AudioFormat>,
+    client_flags: Option<pdu::AudioFormatFlags>,
+    volume: Option<Volume>,
     opus_enc: opus::Encoder,
     _audio: Option<Audio>,
 }
@@ -101,17 +103,30 @@ impl AudioOutHandler for DBusHandler {
     }
 
     async fn set_volume(&mut self, id: u64, volume: Volume) {
-        let inner = self.inner.lock().unwrap();
-
         debug!(?id, ?volume);
+
+        let mut inner = self.inner.lock().unwrap();
+        inner.volume = Some(volume.clone());
+
+        let Some(client_flags) = inner.client_flags else {
+            return;
+        };
+        if !client_flags.contains(AudioFormatFlags::VOLUME) {
+            return;
+        }
 
         let (left, right) = if volume.mute {
             (0, 0)
         } else {
-            (volume.volume.get(0).copied().unwrap_or(0), volume.volume.get(1).copied().unwrap_or(0))
+            #[allow(clippy::get_first)]
+            (
+                volume.volume.get(0).copied().unwrap_or(0),
+                volume.volume.get(1).copied().unwrap_or(0),
+            )
         };
 
         let (left, right) = ((left as u16) * 257, (right as u16) * 257);
+
         if let Some(sender) = inner.ev_sender.as_ref() {
             let _ = sender.send(ServerEvent::Rdpsnd(RdpsndServerMessage::SetVolume {
                 left,
@@ -142,6 +157,8 @@ impl AudioOutHandler for DBusHandler {
             debug!("Incompatible client and server formats");
             return;
         }
+
+        // TODO: apply volume if necessary
 
         if client_fmt.format == pdu::WaveFormat::OPUS {
             let input =
@@ -230,6 +247,7 @@ impl RdpsndServerHandler for RDPSndHandler {
         if let Some(n) = fmt {
             let mut inner = self.inner.lock().unwrap();
             inner.client_fmt = Some(client_format.formats[usize::from(n)].clone());
+            inner.client_flags = Some(client_format.flags);
         }
         fmt
     }
@@ -259,6 +277,8 @@ impl SoundHandler {
             state: State::Init,
             ev_sender: None,
             client_fmt: None,
+            client_flags: None,
+            volume: None,
             opus_enc: opus::Encoder::new(48000, opus::Channels::Stereo, opus::Application::Audio)?,
             _audio: None,
         }));
