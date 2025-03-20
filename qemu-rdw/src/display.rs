@@ -10,7 +10,7 @@ use qemu_display::{Console, ConsoleListenerHandler};
 use rdw::{gtk, DisplayExt};
 use std::cell::Cell;
 #[cfg(unix)]
-use std::os::unix::io::IntoRawFd;
+use qemu_display::ConsoleListenerScanoutDmabuf2Handler;
 
 const XRGB_FORMAT: pixman_sys::pixman_format_code_t =
     pixman_sys::pixman_format_code_t_PIXMAN_x8r8g8b8;
@@ -250,6 +250,8 @@ mod imp {
                     console.set_map_listener(handler.clone()).await.unwrap();
                     #[cfg(windows)]
                     console.set_d3d11_listener(handler.clone()).await.unwrap();
+                    #[cfg(unix)]
+                    console.set_scanout_dmabuf2_listener(handler.clone()).await.unwrap();
 
                     MainContext::default().spawn_local(clone!(
                         #[weak]
@@ -365,11 +367,13 @@ mod imp {
                                         this.obj().set_dmabuf_scanout(rdw::RdwDmabufScanout {
                                             width: s.width,
                                             height: s.height,
+                                            offset: s.offset,
                                             stride: s.stride,
+                                            num_planes: s.num_planes,
                                             fourcc: s.fourcc,
                                             y0_top: s.y0_top,
                                             modifier: s.modifier,
-                                            fd: s.into_raw_fd(),
+                                            fd: s.into_raw_fds(),
                                         });
                                     }
                                     #[cfg(unix)]
@@ -568,7 +572,10 @@ impl ConsoleListenerHandler for ConsoleHandler {
                 "org.qemu.Display1.Listener.Win32.D3d11".to_string(),
             ]
         } else if cfg!(unix) {
-            vec!["org.qemu.Display1.Listener.Unix.Map".to_string()]
+            vec![
+                "org.qemu.Display1.Listener.Unix.Map".to_string(),
+                "org.qemu.Display1.Listener.Unix.ScanoutDMABUF2".to_string(),
+            ]
         } else {
             vec![]
         }
@@ -583,5 +590,13 @@ fn from_gdk_button(button: u32) -> qemu_display::MouseButton {
         2 => Middle,
         3 => Right,
         _ => Extra,
+    }
+}
+
+#[cfg(unix)]
+#[async_trait::async_trait]
+impl ConsoleListenerScanoutDmabuf2Handler for ConsoleHandler {
+    async fn scanout_dmabuf(&mut self, scanout: qemu_display::ScanoutDMABUF) {
+        self.send(ConsoleEvent::ScanoutDMABUF(scanout));
     }
 }

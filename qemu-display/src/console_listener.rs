@@ -9,7 +9,7 @@ use std::os::windows::io::{AsRawHandle, FromRawHandle, OwnedHandle};
 #[cfg(unix)]
 use std::os::{
     fd::{AsFd, OwnedFd},
-    unix::io::{AsRawFd, IntoRawFd, RawFd},
+    unix::io::{AsRawFd, RawFd},
 };
 #[cfg(unix)]
 use zbus::zvariant::Fd;
@@ -138,13 +138,15 @@ pub struct UpdateD3dTexture2d {
 #[cfg(unix)]
 #[derive(Debug)]
 pub struct ScanoutDMABUF {
-    pub fd: RawFd,
+    pub fd: [RawFd; 4],
     pub width: u32,
     pub height: u32,
-    pub stride: u32,
+    pub offset: [u32; 4],
+    pub stride: [u32; 4],
     pub fourcc: u32,
     pub modifier: u64,
     pub y0_top: bool,
+    pub num_planes: u32,
 }
 
 #[cfg(windows)]
@@ -165,18 +167,20 @@ pub struct Cursor {
 #[cfg(unix)]
 impl Drop for ScanoutDMABUF {
     fn drop(&mut self) {
-        if self.fd >= 0 {
-            unsafe {
-                libc::close(self.fd);
+        for &fd in &self.fd {
+            if fd >= 0 {
+                unsafe {
+                    libc::close(fd);
+                }
             }
         }
     }
 }
 
 #[cfg(unix)]
-impl IntoRawFd for ScanoutDMABUF {
-    fn into_raw_fd(mut self) -> RawFd {
-        std::mem::replace(&mut self.fd, -1)
+impl ScanoutDMABUF {
+    pub fn into_raw_fds(mut self) -> [RawFd; 4] {
+        std::mem::replace(&mut self.fd, [-1; 4])
     }
 }
 
@@ -299,13 +303,15 @@ impl<H: ConsoleListenerHandler> ConsoleListener<H> {
         let fd = unsafe { libc::dup(fd.as_raw_fd()) };
         self.handler
             .scanout_dmabuf(ScanoutDMABUF {
-                fd,
+                fd: [fd, -1, -1, -1],
                 width,
                 height,
-                stride,
+                offset: [0; 4],
+                stride: [stride, 0, 0, 0],
                 fourcc,
                 modifier,
                 y0_top,
+                num_planes: 1,
             })
             .await;
         Ok(())
@@ -505,6 +511,77 @@ impl<H: ConsoleListenerD3d11Handler> ConsoleListenerD3d11<H> {
 
 #[cfg(windows)]
 impl<H: ConsoleListenerD3d11Handler> ConsoleListenerD3d11<H> {
+    pub(crate) fn new(handler: H) -> Self {
+        Self { handler }
+    }
+}
+
+#[cfg(unix)]
+#[async_trait::async_trait]
+pub trait ConsoleListenerScanoutDmabuf2Handler: 'static + Send + Sync {
+    async fn scanout_dmabuf(&mut self, scanout: ScanoutDMABUF);
+}
+
+#[cfg(unix)]
+#[derive(Debug)]
+pub(crate) struct ConsoleListenerScanoutDmabuf2<H: ConsoleListenerScanoutDmabuf2Handler> {
+    handler: H,
+}
+
+#[cfg(unix)]
+#[zbus::interface(name = "org.qemu.Display1.Listener.Unix.ScanoutDMABUF2")]
+impl<H: ConsoleListenerScanoutDmabuf2Handler> ConsoleListenerScanoutDmabuf2<H> {
+    #[zbus(name = "ScanoutDMABUF2")]
+    async fn scanout_dmabuf(
+        &mut self,
+        fd: Vec<Fd<'_>>,
+        _x: u32,
+        _y: u32,
+        width: u32,
+        height: u32,
+        offset: Vec<u32>,
+        stride: Vec<u32>,
+        num_planes: u32,
+        fourcc: u32,
+        _backing_width: u32,
+        _backing_height: u32,
+        modifier: u64,
+        y0_top: bool,
+    ) -> zbus::fdo::Result<()> {
+        let mut fds: [RawFd; 4] = [-1; 4];
+        for (i, f) in fd.iter().take(4).enumerate() {
+            fds[i] = unsafe { libc::dup(f.as_raw_fd()) };
+        }
+
+        let mut offsets: [u32; 4] = [0; 4];
+        for (i, &o) in offset.iter().take(4).enumerate() {
+            offsets[i] = o;
+        }
+
+        let mut strides: [u32; 4] = [0; 4];
+        for (i, &s) in stride.iter().take(4).enumerate() {
+            strides[i] = s;
+        }
+
+        self.handler
+            .scanout_dmabuf(ScanoutDMABUF {
+                fd: fds,
+                width,
+                height,
+                offset: offsets,
+                stride: strides,
+                fourcc,
+                modifier,
+                y0_top,
+                num_planes,
+            })
+            .await;
+        Ok(())
+    }
+}
+
+#[cfg(unix)]
+impl<H: ConsoleListenerScanoutDmabuf2Handler> ConsoleListenerScanoutDmabuf2<H> {
     pub(crate) fn new(handler: H) -> Self {
         Self { handler }
     }
