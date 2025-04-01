@@ -26,7 +26,7 @@ tokio = { version = "1.39", features = ["full"] }
 anyhow = "1.0"
 clap = { version = "4.5", features = ["derive", "cargo"] }
 async-trait = "0.1"
-ironrdp = { version = "0.7.4", features = [
+ironrdp = { version = "0.9.1", features = [
     "connector",
     "server",
     "svc",
