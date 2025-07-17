@@ -283,6 +283,10 @@ impl Audio {
         Ok(())
     }
 
+    pub fn unregister_out_listener(&mut self) {
+        self.out_listener = None;
+    }
+
     pub async fn register_in_listener<H: AudioInHandler>(&mut self, handler: H) -> Result<()> {
         let (p0, p1) = UnixStream::pair()?;
         let p0 = util::prepare_uds_pass(
@@ -300,5 +304,9 @@ impl Audio {
         let conn = conn.build().await?;
         self.in_listener.replace(conn);
         Ok(())
+    }
+
+    pub fn unregister_in_listener(&mut self) {
+        self.in_listener = None;
     }
 }
