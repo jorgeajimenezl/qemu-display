@@ -49,6 +49,7 @@ trait Listener {
         data: serde_bytes::ByteBuf,
     ) -> zbus::Result<()>;
 
+    #[allow(clippy::too_many_arguments)]
     fn update(
         &self,
         x: i32,

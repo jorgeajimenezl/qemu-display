@@ -40,7 +40,7 @@ pub struct Chardev {
 
 impl Chardev {
     pub async fn new(conn: &zbus::Connection, id: &str) -> Result<Self> {
-        let obj_path = ObjectPath::try_from(format!("/org/qemu/Display1/Chardev_{}", id))?;
+        let obj_path = ObjectPath::try_from(format!("/org/qemu/Display1/Chardev_{id}"))?;
         let proxy = ChardevProxy::builder(conn).path(&obj_path)?.build().await?;
         Ok(Self { proxy })
     }

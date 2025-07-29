@@ -81,7 +81,7 @@ impl<H: ClipboardHandler> ClipboardListener<H> {
         self.handler
             .request(selection, mimes)
             .await
-            .map_err(|e| zbus::fdo::Error::Failed(format!("Request failed: {}", e)))
+            .map_err(|e| zbus::fdo::Error::Failed(format!("Request failed: {e}")))
     }
 }
 

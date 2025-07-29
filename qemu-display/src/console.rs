@@ -70,7 +70,7 @@ pub struct Console {
 
 impl Console {
     pub async fn new(conn: &Connection, idx: u32, #[cfg(windows)] peer_pid: u32) -> Result<Self> {
-        let obj_path = ObjectPath::try_from(format!("/org/qemu/Display1/Console_{}", idx))?;
+        let obj_path = ObjectPath::try_from(format!("/org/qemu/Display1/Console_{idx}"))?;
         let proxy = ConsoleProxy::builder(conn).path(&obj_path)?.build().await?;
         let keyboard = KeyboardProxy::builder(conn)
             .path(&obj_path)?

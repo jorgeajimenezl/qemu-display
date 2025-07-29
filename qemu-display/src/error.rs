@@ -19,11 +19,11 @@ pub enum Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Error::Io(e) => write!(f, "IO error: {}", e),
-            Error::Zbus(e) => write!(f, "zbus error: {}", e),
-            Error::Rusb(e) => write!(f, "rusb error: {}", e),
-            Error::Usbredir(e) => write!(f, "usbredir error: {}", e),
-            Error::Failed(e) => write!(f, "{}", e),
+            Error::Io(e) => write!(f, "IO error: {e}"),
+            Error::Zbus(e) => write!(f, "zbus error: {e}"),
+            Error::Rusb(e) => write!(f, "rusb error: {e}"),
+            Error::Usbredir(e) => write!(f, "usbredir error: {e}"),
+            Error::Failed(e) => write!(f, "{e}"),
             #[cfg(feature = "qmp")]
             Error::Qmp(e) => write!(f, "qmp error: {}", e),
         }

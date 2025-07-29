@@ -105,7 +105,7 @@ impl<'d> Display<'d> {
         let objects = proxy
             .get_managed_objects()
             .await
-            .map_err(|e| Error::Failed(format!("Unreachable QEMU display ({})", e)))?;
+            .map_err(|e| Error::Failed(format!("Unreachable QEMU display ({e})")))?;
 
         // TODO: listen for changes
         let inner = Inner {
