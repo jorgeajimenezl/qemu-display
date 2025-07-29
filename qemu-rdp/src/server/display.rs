@@ -129,7 +129,7 @@ impl Listener {
         let sender = self.inner.lock().unwrap().sender.clone();
 
         if let Err(e) = sender.send(update).await {
-            println!("{:?}", e);
+            println!("{e:?}");
         };
     }
 

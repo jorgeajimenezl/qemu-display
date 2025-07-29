@@ -21,14 +21,14 @@ impl RdpServerInputHandler for InputHandler {
     fn keyboard(&mut self, event: KeyboardEvent) {
         tracing::debug!(?event);
         if let Err(e) = self.tx.try_send(InputEvent::Keyboard(event)) {
-            eprintln!("keyboard error: {:?}", e);
+            eprintln!("keyboard error: {e:?}");
         }
     }
 
     fn mouse(&mut self, event: MouseEvent) {
         tracing::trace!(?event);
         if let Err(e) = self.tx.try_send(InputEvent::Mouse(event)) {
-            eprintln!("mouse error: {:?}", e);
+            eprintln!("mouse error: {e:?}");
         }
     }
 }
@@ -45,7 +45,7 @@ async fn input_receive_task(mut rx: Receiver<InputEvent>, console: Console) {
                     Ok(())
                 }
                 other => {
-                    eprintln!("unhandled keyboard event: {:?}", other);
+                    eprintln!("unhandled keyboard event: {other:?}");
                     Ok(())
                 }
             },
@@ -68,7 +68,7 @@ async fn input_receive_task(mut rx: Receiver<InputEvent>, console: Console) {
                     console.mouse.press(motion).await
                 }
                 other => {
-                    eprintln!("unhandled input event: {:?}", other);
+                    eprintln!("unhandled input event: {other:?}");
                     Ok(())
                 }
             },
@@ -76,7 +76,7 @@ async fn input_receive_task(mut rx: Receiver<InputEvent>, console: Console) {
         };
 
         if let Err(e) = res {
-            eprintln!("input handling error: {:?}", e);
+            eprintln!("input handling error: {e:?}");
         }
     }
 }
