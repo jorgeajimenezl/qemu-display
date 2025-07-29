@@ -77,7 +77,6 @@ impl Server {
             .with_display_handler(display)
             .with_cliprdr_factory(Some(Box::new(clipboard)))
             .with_sound_factory(sound.map(|h| Box::new(h) as _))
-            .with_remote_fx(self.args.remotefx.enabled())
             .build();
 
         let ev = server.event_sender().clone();

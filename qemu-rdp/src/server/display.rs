@@ -12,10 +12,7 @@ use qemu_display::{
 use ironrdp::{
     connector::DesktopSize,
     displaycontrol::pdu::DisplayControlMonitorLayout,
-    server::{
-        BitmapUpdate, DisplayUpdate, PixelOrder, RGBAPointer, RdpServerDisplay,
-        RdpServerDisplayUpdates,
-    },
+    server::{BitmapUpdate, DisplayUpdate, RGBAPointer, RdpServerDisplay, RdpServerDisplayUpdates},
 };
 use tracing::{debug, warn};
 
@@ -225,13 +222,12 @@ impl ConsoleListenerHandler for Listener {
 
         let bitmap = DisplayUpdate::Bitmap(BitmapUpdate {
             // TODO: fix scary conversion
-            left: cast!(update.x),
-            top: cast!(update.y),
+            x: cast!(update.x),
+            y: cast!(update.y),
             width: cast!(width),
             height: cast!(height),
             format,
-            order: PixelOrder::TopToBottom,
-            data: update.data,
+            data: update.data.into(),
             stride: cast!(update.stride),
         });
 

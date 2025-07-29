@@ -15,7 +15,7 @@ use ironrdp::{
 use tokio::sync::mpsc;
 
 use qemu_display::{Audio, AudioOutHandler, Display, PCMInfo, Volume};
-use tracing::{debug, warn};
+use tracing::{debug, trace, warn};
 
 #[derive(Debug, PartialEq)]
 enum State {
@@ -143,7 +143,7 @@ impl AudioOutHandler for DBusHandler {
             return;
         };
         let Some(client_fmt) = &inner.client_fmt else {
-            debug!("RDP client has not started and negotiated a compatible format");
+            trace!("RDP client has not started and negotiated a compatible format");
             return;
         };
         if *iid != id {
@@ -248,6 +248,9 @@ impl RdpsndServerHandler for RDPSndHandler {
             let mut inner = self.inner.lock().unwrap();
             inner.client_fmt = Some(client_format.formats[usize::from(n)].clone());
             inner.client_flags = Some(client_format.flags);
+            debug!(?inner.client_fmt);
+        } else {
+            warn!("No compatible audio format!");
         }
         fmt
     }

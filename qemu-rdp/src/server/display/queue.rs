@@ -2,7 +2,7 @@
 // I wish I could reuse tokio::mpsc instead of creating a new queue from scratch
 use ironrdp::{
     core::assert_impl,
-    server::{BitmapUpdate, DisplayUpdate, PixelOrder},
+    server::{BitmapUpdate, DisplayUpdate},
 };
 use std::{
     collections::VecDeque,
@@ -150,29 +150,26 @@ fn push_update(queue: &mut MutexGuard<VecDeque<DisplayUpdate>>, item: DisplayUpd
             // Note: pointer updates are not considered graphics operations
             queue.retain(|item| !matches!(item, Resize(_) | Bitmap(_)));
         }
-        Bitmap(ref update @ BitmapUpdate { order, .. }) => {
-            // let's ignore weird order for now
-            if order == PixelOrder::TopToBottom {
-                // drop and split bitmap updates if they overlap
-                let mut i = 0;
-                while i < queue.len() {
-                    let prev = match &queue[i] {
-                        Bitmap(prev) => prev,
-                        _ => {
-                            i += 1;
-                            continue;
-                        }
-                    };
-                    if let Some(res) = mask_bitmap_update(update, prev) {
-                        tracing::debug!(res = res.len(), "dropping");
-                        queue.remove(i);
-                        for item in res {
-                            queue.insert(i, Bitmap(item));
-                            i += 1;
-                        }
+        Bitmap(ref update @ BitmapUpdate { .. }) => {
+            // drop and split bitmap updates if they overlap
+            let mut i = 0;
+            while i < queue.len() {
+                let prev = match &queue[i] {
+                    Bitmap(prev) => prev,
+                    _ => {
+                        i += 1;
+                        continue;
                     }
-                    i += 1;
+                };
+                if let Some(res) = mask_bitmap_update(update, prev) {
+                    tracing::debug!(res = res.len(), "dropping");
+                    queue.remove(i);
+                    for item in res {
+                        queue.insert(i, Bitmap(item));
+                        i += 1;
+                    }
                 }
+                i += 1;
             }
         }
     }
@@ -183,8 +180,8 @@ fn push_update(queue: &mut MutexGuard<VecDeque<DisplayUpdate>>, item: DisplayUpd
 impl From<&BitmapUpdate> for Rect {
     fn from(update: &BitmapUpdate) -> Self {
         Rect {
-            x: update.left as _,
-            y: update.top as _,
+            x: update.x as _,
+            y: update.y as _,
             width: update.width.get() as _,
             height: update.height.get() as _,
         }
@@ -223,7 +220,8 @@ impl Receiver {
 mod tests {
     use std::num::NonZero;
 
-    use ironrdp::server::{DesktopSize, PixelFormat, PixelOrder};
+    use bytes::Bytes;
+    use ironrdp::server::{DesktopSize, PixelFormat};
 
     use super::*;
 
@@ -294,14 +292,13 @@ mod tests {
                     height: 768,
                 }),
                 Bitmap(BitmapUpdate {
-                    top: 0,
-                    left: 0,
+                    x: 0,
+                    y: 0,
                     stride: 0,
                     width: NonZero::new(1024).unwrap(),
                     height: NonZero::new(768).unwrap(),
                     format: PixelFormat::ABgr32,
-                    order: PixelOrder::TopToBottom,
-                    data: vec![],
+                    data: Bytes::new(),
                 }),
                 Resize(DesktopSize {
                     width: 800,
@@ -337,24 +334,22 @@ mod tests {
         crate::utils::block_on(async move {
             let ops = vec![
                 Bitmap(BitmapUpdate {
-                    top: 0,
-                    left: 0,
+                    x: 0,
+                    y: 0,
                     stride: 0,
                     width: NonZero::new(1024).unwrap(),
                     height: NonZero::new(768).unwrap(),
                     format: PixelFormat::ABgr32,
-                    order: PixelOrder::TopToBottom,
-                    data: vec![],
+                    data: Bytes::new(),
                 }),
                 Bitmap(BitmapUpdate {
-                    top: 0,
-                    left: 0,
+                    x: 0,
+                    y: 0,
                     stride: 0,
                     width: NonZero::new(1024).unwrap(),
                     height: NonZero::new(768).unwrap(),
                     format: PixelFormat::ABgr32,
-                    order: PixelOrder::TopToBottom,
-                    data: vec![],
+                    data: Bytes::new(),
                 }),
             ];
             for op in ops {

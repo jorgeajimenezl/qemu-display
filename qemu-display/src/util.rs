@@ -18,7 +18,7 @@ use windows::Win32::Networking::WinSock::SOCKET;
 #[cfg(windows)]
 use windows::Win32::System::Threading::PROCESS_DUP_HANDLE;
 
-pub fn prepare_uds_pass(#[cfg(windows)] peer_pid: u32, us: &UnixStream) -> Result<Fd> {
+pub fn prepare_uds_pass(#[cfg(windows)] peer_pid: u32, us: &UnixStream) -> Result<Fd<'_>> {
     #[cfg(unix)]
     {
         Ok(us.into())

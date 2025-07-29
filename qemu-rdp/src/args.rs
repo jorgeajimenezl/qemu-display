@@ -46,9 +46,9 @@ pub struct ServerArgs {
     #[clap(short, long, value_parser)]
     pub key: Option<PathBuf>,
 
-    /// RemoteFx encoding
-    #[clap(value_enum, long, default_value = "enable")]
-    pub remotefx: EnableDisableArg,
+    /// Codecs configuration
+    #[clap(long)]
+    pub codecs: Vec<String>,
 }
 
 #[derive(Debug, PartialEq, Clone, ValueEnum)]

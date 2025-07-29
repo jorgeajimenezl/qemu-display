@@ -400,6 +400,10 @@ impl CliprdrBackend for RDPCliprdrBackend {
         ClipboardGeneralCapabilityFlags::empty()
     }
 
+    fn on_ready(&mut self) {
+        // todo
+    }
+
     fn on_process_negotiated_capabilities(
         &mut self,
         capabilities: ClipboardGeneralCapabilityFlags,

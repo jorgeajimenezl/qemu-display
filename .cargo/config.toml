@@ -1,5 +1,9 @@
 [alias]
 xtask = "run --package xtask --"
 
-#[patch."https://github.com/Devolutions/IronRDP"]
+[patch.crates-io]
 #ironrdp = { path = "../IronRDP/crates/ironrdp" }
+rdw4 = { path = "../rdw/rdw4" }
+#yuv = { path = "/home/elmarco/src/yuvutils-rs" }
+#qoi = { git = "https://github.com/elmarco/qoi-rust.git", branch = "raw" }
+
