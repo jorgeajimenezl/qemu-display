@@ -54,16 +54,15 @@ pub trait Console {
     fn height(&self) -> zbus::Result<u32>;
 }
 
-#[derive(derivative::Derivative)]
-#[derivative(Debug, Clone)]
+#[derive(derive_more::Debug, Clone)]
 pub struct Console {
-    #[derivative(Debug = "ignore")]
+    #[debug(skip)]
     pub proxy: ConsoleProxy<'static>,
-    #[derivative(Debug = "ignore")]
+    #[debug(skip)]
     pub keyboard: KeyboardProxy<'static>,
-    #[derivative(Debug = "ignore")]
+    #[debug(skip)]
     pub mouse: MouseProxy<'static>,
-    #[derivative(Debug = "ignore")]
+    #[debug(skip)]
     pub multi_touch: MultiTouchProxy<'static>,
     listener: Arc<RwLock<Option<Connection>>>,
     #[cfg(windows)]

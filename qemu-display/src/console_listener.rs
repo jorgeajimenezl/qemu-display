@@ -1,6 +1,6 @@
 #[cfg(windows)]
 use crate::win32::{Fd, Mmap};
-use derivative::Derivative;
+
 #[cfg(unix)]
 use memmap2::Mmap;
 use std::ops::Drop;
@@ -14,19 +14,17 @@ use std::os::{
 #[cfg(unix)]
 use zbus::zvariant::Fd;
 
-#[derive(Derivative)]
-#[derivative(Debug)]
+#[derive(derive_more::Debug)]
 pub struct Scanout {
     pub width: u32,
     pub height: u32,
     pub stride: u32,
     pub format: u32,
-    #[derivative(Debug = "ignore")]
+    #[debug(skip)]
     pub data: Vec<u8>,
 }
 
-#[derive(Derivative)]
-#[derivative(Debug)]
+#[derive(derive_more::Debug)]
 pub struct Update {
     pub x: i32,
     pub y: i32,
@@ -34,7 +32,7 @@ pub struct Update {
     pub h: i32,
     pub stride: u32,
     pub format: u32,
-    #[derivative(Debug = "ignore")]
+    #[debug(skip)]
     pub data: Vec<u8>,
 }
 
@@ -153,14 +151,13 @@ pub struct ScanoutDMABUF {
 #[derive(Debug)]
 pub struct ScanoutDMABUF {}
 
-#[derive(Derivative)]
-#[derivative(Debug)]
+#[derive(derive_more::Debug)]
 pub struct Cursor {
     pub width: i32,
     pub height: i32,
     pub hot_x: i32,
     pub hot_y: i32,
-    #[derivative(Debug = "ignore")]
+    #[debug(skip)]
     pub data: Vec<u8>,
 }
 

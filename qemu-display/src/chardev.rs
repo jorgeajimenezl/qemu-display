@@ -32,8 +32,7 @@ pub trait Chardev {
     fn owner(&self) -> zbus::Result<String>;
 }
 
-#[derive(derivative::Derivative)]
-#[derivative(Debug)]
+#[derive(derive_more::Debug)]
 pub struct Chardev {
     pub proxy: ChardevProxy<'static>,
 }

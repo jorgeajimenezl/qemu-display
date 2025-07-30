@@ -69,10 +69,9 @@ pub trait Audio {
     fn nsamples(&self) -> zbus::Result<u32>;
 }
 
-#[derive(derivative::Derivative)]
-#[derivative(Debug)]
+#[derive(derive_more::Debug)]
 pub struct Audio {
-    #[derivative(Debug = "ignore")]
+    #[debug(skip)]
     pub proxy: AudioProxy<'static>,
     out_listener: Option<Connection>,
     in_listener: Option<Connection>,

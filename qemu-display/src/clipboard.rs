@@ -85,10 +85,9 @@ impl<H: ClipboardHandler> ClipboardListener<H> {
     }
 }
 
-#[derive(derivative::Derivative)]
-#[derivative(Clone, Debug)]
+#[derive(Clone, derive_more::Debug)]
 pub struct Clipboard {
-    #[derivative(Debug = "ignore")]
+    #[debug(skip)]
     pub proxy: ClipboardProxy<'static>,
     conn: zbus::Connection,
 }
