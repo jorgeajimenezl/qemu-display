@@ -18,7 +18,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-qemu-display = "0.1.0"
+qemu-display = "0.2"
 ```
 
 ## Quick Start

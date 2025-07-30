@@ -733,6 +733,7 @@ dependencies = [
 [[package]]
 name = "cbindgen"
 version = "0.28.0"
+source = "git+https://gitlab.gnome.org/malureau/rdw.git#b6d330cc4b68f2dbb9f62e0b7f7c5f1a5fb08bd5"
 dependencies = [
  "clap",
  "heck 0.4.1",
@@ -3705,7 +3706,7 @@ dependencies = [
 
 [[package]]
 name = "qemu-display"
-version = "0.1.4"
+version = "0.2.0"
 dependencies = [
  "async-broadcast",
  "async-lock",
@@ -3992,10 +3993,12 @@ dependencies = [
 [[package]]
 name = "rdw-keycodemap"
 version = "0.1.0"
+source = "git+https://gitlab.gnome.org/malureau/rdw.git#b6d330cc4b68f2dbb9f62e0b7f7c5f1a5fb08bd5"
 
 [[package]]
 name = "rdw4"
 version = "0.1.0"
+source = "git+https://gitlab.gnome.org/malureau/rdw.git#b6d330cc4b68f2dbb9f62e0b7f7c5f1a5fb08bd5"
 dependencies = [
  "cargo_metadata",
  "cbindgen",

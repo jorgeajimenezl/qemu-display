@@ -21,7 +21,7 @@ repository = "https://gitlab.com/marcandre.lureau/qemu-display"
 tracing = "0.1"
 zbus = { version = "5.0", features = ["p2p", "serde_bytes"] }
 pixman-sys = "0.1"
-qemu-display = { path = "qemu-display", version = "0.1.4" }
+qemu-display = { path = "qemu-display", version = "0.2" }
 keycodemap = { path = "keycodemap", version = "0.1" }
 
 [patch.crates-io]
