@@ -6,11 +6,11 @@ use once_cell::sync::OnceCell;
 use qemu_display::ConsoleListenerD3d11Handler;
 #[cfg(any(windows, unix))]
 use qemu_display::ConsoleListenerMapHandler;
+#[cfg(unix)]
+use qemu_display::ConsoleListenerScanoutDmabuf2Handler;
 use qemu_display::{Console, ConsoleListenerHandler};
 use rdw::{gtk, DisplayExt};
 use std::cell::Cell;
-#[cfg(unix)]
-use qemu_display::ConsoleListenerScanoutDmabuf2Handler;
 
 const XRGB_FORMAT: pixman_sys::pixman_format_code_t =
     pixman_sys::pixman_format_code_t_PIXMAN_x8r8g8b8;
@@ -251,7 +251,10 @@ mod imp {
                     #[cfg(windows)]
                     console.set_d3d11_listener(handler.clone()).await.unwrap();
                     #[cfg(unix)]
-                    console.set_scanout_dmabuf2_listener(handler.clone()).await.unwrap();
+                    console
+                        .set_scanout_dmabuf2_listener(handler.clone())
+                        .await
+                        .unwrap();
 
                     MainContext::default().spawn_local(clone!(
                         #[weak]

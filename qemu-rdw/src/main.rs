@@ -3,8 +3,8 @@ use gio::ApplicationFlags;
 use glib::MainContext;
 use gtk::{gio, glib, prelude::*};
 use qemu_display::{util, Chardev, Console, Display};
-use rdw::gtk;
-use std::{cell::RefCell, convert::TryFrom, rc::Rc};
+use rdw::gtk::{self, glib::ExitCode};
+use std::{cell::RefCell, convert::TryFrom, ops::ControlFlow, rc::Rc};
 use zbus::names::BusName;
 
 mod audio;
@@ -151,7 +151,7 @@ impl App {
             let mut app_opt = opt_clone.borrow_mut();
             if opt.lookup_value("version", None).is_some() {
                 println!("Version: {}", env!("CARGO_PKG_VERSION"));
-                return 0;
+                return ControlFlow::Break(ExitCode::new(0));
             }
             if let Some(arg) = opt.lookup_value("address", None) {
                 app_opt.address = arg.get::<String>();
@@ -169,7 +169,7 @@ impl App {
             app_opt.vm_name = opt
                 .lookup_value(glib::OPTION_REMAINING, None)
                 .and_then(|args| args.child_value(0).get::<String>());
-            -1
+            return ControlFlow::Continue(());
         });
 
         let app = App {
