@@ -1,6 +1,6 @@
 [package]
 name = "qemu-rdp"
-version = "0.1.0"
+version = "0.1.1"
 authors = [
     "Mihnea Buzatu <mihneabuzatu88@gmail.com>",
     "Marc-André Lureau <marcandre.lureau@redhat.com>",
