@@ -1,16 +1,14 @@
 use futures::prelude::*;
 use glib::{clone, MainContext};
 use gtk::{gio, glib};
-use qemu_display::Chardev;
+use qemu_display::{Chardev, Display};
 use std::os::unix::{io::AsRawFd, net::UnixStream};
 use vte::{gtk, prelude::*};
 use zbus::Connection;
 
 fn main() {
     pretty_env_logger::init();
-    let chardev_id = std::env::args()
-        .nth(1)
-        .unwrap_or_else(|| "serial0".to_string());
+    let chardev_id = std::env::args().nth(1);
 
     let app = gtk::Application::new(Some("org.qemu.vte-example"), Default::default());
     app.add_main_option(
@@ -34,7 +32,21 @@ fn main() {
                 .await
                 .expect("Failed to connect to session D-Bus");
 
-            let c = Chardev::new(&conn, &id).await.unwrap();
+            let c = if let Some(id) = id {
+                Chardev::new(&conn, &id).await.unwrap()
+            } else {
+                let display = Display::new(&conn, Option::<&str>::None).await.unwrap();
+                let mut found = None;
+                for c in display.chardevs().await {
+                    if c.proxy.name().await.ok()
+                        == Some("org.qemu.console.serial.0".to_string())
+                    {
+                        found = Some(c);
+                        break;
+                    }
+                }
+                found.expect("No chardev with name 'org.qemu.console.serial.0' found")
+            };
             c.proxy.name().await.expect("Chardev not found");
 
             let (p0, p1) = UnixStream::pair().unwrap();
