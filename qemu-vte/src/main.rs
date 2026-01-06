@@ -21,7 +21,7 @@ fn main() {
         "ID",
         Some("chardev-name/id"),
     );
-    app.connect_handle_local_options(|_, _| -1);
+    app.connect_handle_local_options(|_, _| std::ops::ControlFlow::Continue(()));
     app.connect_activate(move |app| {
         let window = gtk::ApplicationWindow::new(app);
         window.set_title(Some("D-Bus serial example"));
@@ -40,7 +40,7 @@ fn main() {
             let (p0, p1) = UnixStream::pair().unwrap();
             if c.proxy.register((&p1).into()).await.is_ok() {
                 let ostream = unsafe { gio::UnixOutputStream::with_fd(p0.as_raw_fd()) };
-                let istream = unsafe { gio::UnixInputStream::take_fd(p0) }
+                let istream = gio::UnixInputStream::take_fd(p0.into())
                     .dynamic_cast::<gio::PollableInputStream>()
                     .unwrap();
 
