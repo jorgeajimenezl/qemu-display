@@ -2,6 +2,8 @@ use futures_util::StreamExt;
 use gio::ApplicationFlags;
 use glib::MainContext;
 use gtk::{gio, glib, prelude::*};
+#[cfg(unix)]
+use qemu_display::UsbRedir;
 use qemu_display::{util, Chardev, Console, Display};
 use rdw::gtk::{self, glib::ExitCode};
 use std::{cell::RefCell, convert::TryFrom, ops::ControlFlow, rc::Rc};
@@ -228,7 +230,11 @@ impl App {
                     .set_child(Some(&rdw));
 
                 #[cfg(unix)]
-                app_clone.set_usbredir(usbredir::Handler::new(display.usbredir().await));
+                {
+                    let chardevs = display.usbredir_chardevs().await;
+                    let usbredir = UsbRedir::new(chardevs, usbredir::RusbBackend);
+                    app_clone.set_usbredir(usbredir::Handler::new(usbredir));
+                }
 
                 if let Ok(Some(audio)) = display.audio().await {
                     match audio::Handler::new(audio).await {

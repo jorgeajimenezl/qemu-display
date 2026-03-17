@@ -23,6 +23,8 @@ pixman-sys = "0.1.0"
 
 [target.'cfg(unix)'.dependencies]
 rdw = { package = "rdw4", version = "0.1", features = ["bindings"] }
+usbredirhost = "0.4"
+libc = "0.2"
 
 [target.'cfg(windows)'.dependencies]
 uds_windows = "1.1.0"
