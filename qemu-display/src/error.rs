@@ -1,6 +1,5 @@
 use std::{convert::Infallible, error, fmt, io};
 
-use usbredirhost::rusb;
 
 #[cfg(feature = "qmp")]
 use qapi::ExecuteError;
@@ -9,8 +8,6 @@ use qapi::ExecuteError;
 pub enum Error {
     Io(io::Error),
     Zbus(zbus::Error),
-    Rusb(rusb::Error),
-    Usbredir(usbredirhost::Error),
     Failed(String),
     #[cfg(feature = "qmp")]
     Qmp(ExecuteError),
@@ -21,8 +18,6 @@ impl fmt::Display for Error {
         match self {
             Error::Io(e) => write!(f, "IO error: {e}"),
             Error::Zbus(e) => write!(f, "zbus error: {e}"),
-            Error::Rusb(e) => write!(f, "rusb error: {e}"),
-            Error::Usbredir(e) => write!(f, "usbredir error: {e}"),
             Error::Failed(e) => write!(f, "{e}"),
             #[cfg(feature = "qmp")]
             Error::Qmp(e) => write!(f, "qmp error: {}", e),
@@ -35,8 +30,6 @@ impl error::Error for Error {
         match self {
             Error::Io(e) => Some(e),
             Error::Zbus(e) => Some(e),
-            Error::Rusb(e) => Some(e),
-            Error::Usbredir(e) => Some(e),
             Error::Failed(_) => None,
             #[cfg(feature = "qmp")]
             Error::Qmp(e) => Some(e),
@@ -74,17 +67,6 @@ impl From<zbus::names::Error> for Error {
     }
 }
 
-impl From<rusb::Error> for Error {
-    fn from(e: rusb::Error) -> Self {
-        Error::Rusb(e)
-    }
-}
-
-impl From<usbredirhost::Error> for Error {
-    fn from(e: usbredirhost::Error) -> Self {
-        Error::Usbredir(e)
-    }
-}
 
 #[cfg(feature = "qmp")]
 impl From<ExecuteError> for Error {

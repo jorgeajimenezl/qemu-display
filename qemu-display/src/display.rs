@@ -13,8 +13,6 @@ use zbus::{
     Connection,
 };
 
-#[cfg(unix)]
-use crate::UsbRedir;
 use crate::{Audio, Chardev, Clipboard, Error, Result, VMProxy};
 
 #[cfg(all(unix, feature = "qmp"))]
@@ -263,8 +261,8 @@ impl<'d> Display<'d> {
     }
 
     #[cfg(unix)]
-    pub async fn usbredir(&self) -> UsbRedir {
-        let chardevs = stream::iter(self.chardevs().await)
+    pub async fn usbredir_chardevs(&self) -> Vec<Chardev> {
+        stream::iter(self.chardevs().await)
             .filter_map(|c| async move {
                 if c.proxy.name().await.ok() == Some("org.qemu.usbredir".to_string()) {
                     Some(c)
@@ -273,8 +271,6 @@ impl<'d> Display<'d> {
                 }
             })
             .collect()
-            .await;
-
-        UsbRedir::new(chardevs)
+            .await
     }
 }

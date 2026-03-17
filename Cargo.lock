@@ -3751,7 +3751,6 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "uds_windows",
- "usbredirhost",
  "windows",
  "zbus",
 ]
@@ -3786,6 +3785,7 @@ dependencies = [
  "futures",
  "futures-util",
  "keycodemap",
+ "libc",
  "log 0.4.27",
  "once_cell",
  "pixman-sys",
@@ -3794,6 +3794,7 @@ dependencies = [
  "rdw4",
  "tracing-subscriber",
  "uds_windows",
+ "usbredirhost",
  "windows",
  "zbus",
 ]

@@ -43,7 +43,7 @@ pub use multi_touch::*;
 #[cfg(unix)]
 mod usbredir;
 #[cfg(unix)]
-pub use usbredir::UsbRedir;
+pub use usbredir::*;
 
 #[cfg(test)]
 mod tests {
