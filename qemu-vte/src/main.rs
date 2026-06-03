@@ -51,8 +51,8 @@ fn main() {
 
             let (p0, p1) = UnixStream::pair().unwrap();
             if c.proxy.register((&p1).into()).await.is_ok() {
-                let ostream = unsafe { gio::UnixOutputStream::with_fd(p0.as_raw_fd()) };
-                let istream = gio::UnixInputStream::take_fd(p0.into())
+                let ostream = unsafe { gio_unix::OutputStream::with_fd(p0.as_raw_fd()) };
+                let istream = gio_unix::InputStream::take_fd(p0.into())
                     .dynamic_cast::<gio::PollableInputStream>()
                     .unwrap();
 
