@@ -36,7 +36,7 @@ memmap2 = "0.9.5"
 
 [target.'cfg(windows)'.dependencies]
 uds_windows = "1.1"
-windows = { version = "0.61.3", features = [
+windows = { version = "0.62", features = [
     "Win32_Networking_WinSock",
     "Win32_Foundation",
     "Win32_System_IO",

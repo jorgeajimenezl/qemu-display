@@ -3879,7 +3879,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "uds_windows",
- "windows 0.61.3",
+ "windows 0.62.2",
  "zbus",
 ]
 
@@ -3923,7 +3923,7 @@ dependencies = [
  "tracing-subscriber",
  "uds_windows",
  "usbredirhost",
- "windows 0.61.3",
+ "windows 0.62.2",
  "zbus",
 ]
 
