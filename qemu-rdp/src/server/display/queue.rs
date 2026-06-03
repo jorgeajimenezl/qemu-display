@@ -13,7 +13,9 @@ use std::{
 };
 use tokio::sync::{Mutex, MutexGuard, Notify};
 
-use DisplayUpdate::{Bitmap, ColorPointer, DefaultPointer, HidePointer, RGBAPointer, Resize};
+use DisplayUpdate::{
+    Bitmap, CachedPointer, ColorPointer, DefaultPointer, HidePointer, RGBAPointer, Resize,
+};
 
 mod rect;
 use rect::Rect;
@@ -133,12 +135,12 @@ fn push_update(queue: &mut MutexGuard<VecDeque<DisplayUpdate>>, item: DisplayUpd
                 return true;
             }
         }
-        ColorPointer(_) | RGBAPointer(_) | HidePointer | DefaultPointer => {
+        ColorPointer(_) | RGBAPointer(_) | CachedPointer(_) | HidePointer | DefaultPointer => {
             // If there is already a pointer shape update in the queue, replace it with the new one
             if let Some(idx) = queue.iter().position(|update| {
                 matches!(
                     update,
-                    ColorPointer(_) | RGBAPointer(_) | HidePointer | DefaultPointer
+                    ColorPointer(_) | RGBAPointer(_) | CachedPointer(_) | HidePointer | DefaultPointer
                 )
             }) {
                 queue[idx] = item;
@@ -294,7 +296,7 @@ mod tests {
                 Bitmap(BitmapUpdate {
                     x: 0,
                     y: 0,
-                    stride: 0,
+                    stride: NonZero::new(1usize).unwrap(),
                     width: NonZero::new(1024).unwrap(),
                     height: NonZero::new(768).unwrap(),
                     format: PixelFormat::ABgr32,
@@ -336,7 +338,7 @@ mod tests {
                 Bitmap(BitmapUpdate {
                     x: 0,
                     y: 0,
-                    stride: 0,
+                    stride: NonZero::new(1usize).unwrap(),
                     width: NonZero::new(1024).unwrap(),
                     height: NonZero::new(768).unwrap(),
                     format: PixelFormat::ABgr32,
@@ -345,7 +347,7 @@ mod tests {
                 Bitmap(BitmapUpdate {
                     x: 0,
                     y: 0,
-                    stride: 0,
+                    stride: NonZero::new(1usize).unwrap(),
                     width: NonZero::new(1024).unwrap(),
                     height: NonZero::new(768).unwrap(),
                     format: PixelFormat::ABgr32,

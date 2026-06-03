@@ -1,4 +1,5 @@
 use std::{
+    num::NonZeroUsize,
     sync::{Arc, Mutex},
     thread,
 };
@@ -63,8 +64,8 @@ impl DisplayHandler {
 
 #[async_trait::async_trait]
 impl RdpServerDisplayUpdates for DisplayUpdates {
-    async fn next_update(&mut self) -> Option<DisplayUpdate> {
-        self.receiver.recv().await
+    async fn next_update(&mut self) -> Result<Option<DisplayUpdate>> {
+        Ok(self.receiver.recv().await)
     }
 }
 
@@ -220,6 +221,10 @@ impl ConsoleListenerHandler for Listener {
         let width: u16 = cast!(update.w);
         let height: u16 = cast!(update.h);
 
+        let Some(stride) = NonZeroUsize::new(update.stride as usize) else {
+            eprintln!("Error: zero stride");
+            return;
+        };
         let bitmap = DisplayUpdate::Bitmap(BitmapUpdate {
             // TODO: fix scary conversion
             x: cast!(update.x),
@@ -228,7 +233,7 @@ impl ConsoleListenerHandler for Listener {
             height: cast!(height),
             format,
             data: update.data.into(),
-            stride: cast!(update.stride),
+            stride,
         });
 
         self.send(bitmap).await;
@@ -292,6 +297,7 @@ impl ConsoleListenerHandler for Listener {
         let data = flip_vertically(cursor.data, cast!(cursor.width), cast!(cursor.height));
 
         self.send(DisplayUpdate::RGBAPointer(RGBAPointer {
+            cache_index: 0,
             width: cast!(cursor.width),
             height: cast!(cursor.height),
             hot_x: cast!(cursor.hot_x),
