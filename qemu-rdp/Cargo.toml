@@ -33,6 +33,7 @@ ironrdp = { version = "0.15", features = [
     "cliprdr",
     "displaycontrol",
     "rdpsnd",
+    "qoiz",
 ] }
 futures-util = "0.3"
 zbus.workspace = true

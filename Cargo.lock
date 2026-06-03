@@ -2747,6 +2747,7 @@ dependencies = [
  "ironrdp-pdu",
  "ironrdp-rdpsnd",
  "ironrdp-server",
+ "ironrdp-session",
  "ironrdp-svc",
 ]
 
@@ -2789,6 +2790,12 @@ dependencies = [
  "ironrdp-pdu",
  "tracing",
 ]
+
+[[package]]
+name = "ironrdp-bulk"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2e548d9fd162558a5a8aaed72e528556ce88e77773634e3722b8d01d6f170388"
 
 [[package]]
 name = "ironrdp-cliprdr"
@@ -2956,6 +2963,26 @@ dependencies = [
  "tokio-rustls",
  "tracing",
  "x509-cert",
+ "zstd-safe",
+]
+
+[[package]]
+name = "ironrdp-session"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ebd1750d822c54068ace4051ab6fc655b3982fc92cacbaf16c2dc2f6e92602f7"
+dependencies = [
+ "ironrdp-bulk",
+ "ironrdp-connector",
+ "ironrdp-core",
+ "ironrdp-displaycontrol",
+ "ironrdp-dvc",
+ "ironrdp-error",
+ "ironrdp-graphics",
+ "ironrdp-pdu",
+ "ironrdp-svc",
+ "qoicoubeh",
+ "tracing",
  "zstd-safe",
 ]
 

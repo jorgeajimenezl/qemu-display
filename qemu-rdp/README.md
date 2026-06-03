@@ -33,6 +33,12 @@ run the server: (requires certificate and key)
 qemu-rdp serve --bind-address YOUR_IP:3389 --cert=CERT.PEM --key=KEY.PEM
 ```
 
+Set the credentials:
+```bash
+busctl call --user org.QemuDisplay.RDP /org/qemu_display/rdp \
+  org.QemuDisplay.RDP SetCredentials sss "myuser" "mypass" ""
+```
+
 Although for a complete setup (with audio devices, clipboard and such), you may
 want to wait for libvirt to support it.
 
