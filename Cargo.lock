@@ -754,7 +754,7 @@ dependencies = [
 [[package]]
 name = "cbindgen"
 version = "0.28.0"
-source = "git+https://gitlab.gnome.org/malureau/rdw.git#6a2a1bb546a2216f5bd4d5b094cd09623636c556"
+source = "git+https://gitlab.gnome.org/malureau/rdw.git#3df24640ba72f5092b722b5347d591846a8b1292"
 dependencies = [
  "clap",
  "heck 0.4.1",
@@ -4127,12 +4127,12 @@ dependencies = [
 [[package]]
 name = "rdw-keycodemap"
 version = "0.1.0"
-source = "git+https://gitlab.gnome.org/malureau/rdw.git#6a2a1bb546a2216f5bd4d5b094cd09623636c556"
+source = "git+https://gitlab.gnome.org/malureau/rdw.git#3df24640ba72f5092b722b5347d591846a8b1292"
 
 [[package]]
 name = "rdw4"
 version = "0.1.0"
-source = "git+https://gitlab.gnome.org/malureau/rdw.git#6a2a1bb546a2216f5bd4d5b094cd09623636c556"
+source = "git+https://gitlab.gnome.org/malureau/rdw.git#3df24640ba72f5092b722b5347d591846a8b1292"
 dependencies = [
  "cargo_metadata",
  "cbindgen",
