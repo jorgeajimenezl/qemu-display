@@ -1,6 +1,5 @@
 use std::{convert::Infallible, error, fmt, io};
 
-
 #[cfg(feature = "qmp")]
 use qapi::ExecuteError;
 
@@ -66,7 +65,6 @@ impl From<zbus::names::Error> for Error {
         Error::Zbus(e.into())
     }
 }
-
 
 #[cfg(feature = "qmp")]
 impl From<ExecuteError> for Error {

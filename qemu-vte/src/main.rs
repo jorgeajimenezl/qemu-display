@@ -38,9 +38,7 @@ fn main() {
                 let display = Display::new(&conn, Option::<&str>::None).await.unwrap();
                 let mut found = None;
                 for c in display.chardevs().await {
-                    if c.proxy.name().await.ok()
-                        == Some("org.qemu.console.serial.0".to_string())
-                    {
+                    if c.proxy.name().await.ok() == Some("org.qemu.console.serial.0".to_string()) {
                         found = Some(c);
                         break;
                     }
