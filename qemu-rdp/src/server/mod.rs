@@ -15,7 +15,7 @@ mod input;
 mod sound;
 mod usbredir;
 
-use crate::args::ServerArgs;
+use crate::{args::ServerArgs, server::usbredir::QemuUsbFactory};
 use clipboard::ClipboardHandler;
 use display::DisplayHandler;
 use input::InputHandler;
@@ -62,6 +62,7 @@ impl Server {
         let handler = InputHandler::connect(&dbus_display).await?;
         let display = DisplayHandler::connect(&dbus_display).await?;
         let clipboard = ClipboardHandler::connect(&dbus_display).await?;
+        let usbredir = QemuUsbFactory::connect(&dbus_display).await?;
         let sound = match SoundHandler::connect(&dbus_display).await {
             Ok(h) => Some(h),
             Err(e) => {
@@ -78,6 +79,7 @@ impl Server {
             .with_display_handler(display)
             .with_cliprdr_factory(Some(Box::new(clipboard)))
             .with_sound_factory(sound.map(|h| Box::new(h) as _))
+            .with_usb_factory(Some(Box::new(usbredir)))
             .build();
 
         let ev = server.event_sender().clone();
