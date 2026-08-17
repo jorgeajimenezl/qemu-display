@@ -140,7 +140,11 @@ fn push_update(queue: &mut MutexGuard<VecDeque<DisplayUpdate>>, item: DisplayUpd
             if let Some(idx) = queue.iter().position(|update| {
                 matches!(
                     update,
-                    ColorPointer(_) | RGBAPointer(_) | CachedPointer(_) | HidePointer | DefaultPointer
+                    ColorPointer(_)
+                        | RGBAPointer(_)
+                        | CachedPointer(_)
+                        | HidePointer
+                        | DefaultPointer
                 )
             }) {
                 queue[idx] = item;
@@ -223,7 +227,7 @@ mod tests {
     use std::num::NonZero;
 
     use bytes::Bytes;
-    use ironrdp::server::{DesktopSize, PixelFormat};
+    use ironrdp_server::{DesktopSize, PixelFormat};
 
     use super::*;
 
