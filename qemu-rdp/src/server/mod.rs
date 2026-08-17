@@ -13,6 +13,7 @@ mod clipboard;
 mod display;
 mod input;
 mod sound;
+mod usbredir;
 
 use crate::args::ServerArgs;
 use clipboard::ClipboardHandler;
