@@ -1,26 +1,17 @@
-use futures_util::StreamExt;
 use gio::ApplicationFlags;
 use glib::MainContext;
 use gtk::{gio, glib, prelude::*};
 #[cfg(unix)]
 use qemu_display::UsbRedir;
-use qemu_display::{util, Chardev, Console, Display};
+use qemu_display::{util, Chardev, Display};
 use rdw::gtk::{self, glib::ExitCode};
 use std::{cell::RefCell, convert::TryFrom, ops::ControlFlow, rc::Rc};
 use zbus::names::BusName;
 
-mod audio;
-mod clipboard;
-mod display;
-#[cfg(unix)]
-mod usbredir;
-
 struct Inner {
     app: gtk::Application,
     #[cfg(unix)]
-    usbredir: RefCell<Option<usbredir::Handler>>,
-    audio: RefCell<Option<audio::Handler>>,
-    clipboard: RefCell<Option<clipboard::Handler>>,
+    usbredir: RefCell<Option<rdw4_qemu::UsbRedirHandler>>,
 }
 
 #[derive(Clone)]
@@ -179,8 +170,6 @@ impl App {
                 app,
                 #[cfg(unix)]
                 usbredir: Default::default(),
-                audio: Default::default(),
-                clipboard: Default::default(),
             }),
         };
 
@@ -205,53 +194,38 @@ impl App {
                         return;
                     }
                 };
-                let disp = display.clone();
-                let app = app_clone.clone();
-                MainContext::default().spawn_local(async move {
-                    let mut changed = disp.receive_owner_changed().await.unwrap();
-                    let _ = changed.next().await;
-                    app.inner.app.quit();
-                });
 
-                let console = Console::new(
-                    display.connection(),
-                    0,
-                    #[cfg(windows)]
-                    display.peer_pid(),
+                let app_weak = app_clone.clone();
+                let on_disconnected = move |_: Result<(), qemu_display::Error>| {
+                    app_weak.inner.app.quit();
+                };
+
+                let rdw_display = match rdw4_qemu::Display::new_with_qemu_display(
+                    &display,
+                    Some(on_disconnected),
                 )
                 .await
-                .expect("Failed to get the QEMU console");
-                let rdw = display::Display::new(console);
+                {
+                    Ok(d) => d,
+                    Err(e) => {
+                        log::warn!("Failed to create display: {e}");
+                        app_clone.inner.app.quit();
+                        return;
+                    }
+                };
+
                 app_clone
                     .inner
                     .app
                     .active_window()
                     .unwrap()
-                    .set_child(Some(&rdw));
+                    .set_child(Some(&rdw_display));
 
                 #[cfg(unix)]
                 {
                     let chardevs = display.usbredir_chardevs().await;
-                    let usbredir = UsbRedir::new(chardevs, usbredir::RusbBackend);
-                    app_clone.set_usbredir(usbredir::Handler::new(usbredir));
-                }
-
-                if let Ok(Some(audio)) = display.audio().await {
-                    match audio::Handler::new(audio).await {
-                        Ok(handler) => app_clone.set_audio(handler),
-                        Err(e) => {
-                            log::warn!("Failed to setup audio handler: {}", e);
-                        }
-                    }
-                }
-
-                if let Ok(Some(clipboard)) = display.clipboard().await {
-                    match clipboard::Handler::new(clipboard).await {
-                        Ok(handler) => app_clone.set_clipboard(handler),
-                        Err(e) => {
-                            log::warn!("Failed to setup clipboard handler: {}", e);
-                        }
-                    }
+                    let usbredir = UsbRedir::new(chardevs, rdw4_qemu::RusbBackend);
+                    app_clone.set_usbredir(rdw4_qemu::UsbRedirHandler::new(usbredir));
                 }
 
                 if let Ok(c) = Chardev::new(display.connection(), "qmp").await {
@@ -303,16 +277,8 @@ impl App {
     }
 
     #[cfg(unix)]
-    fn set_usbredir(&self, usbredir: usbredir::Handler) {
+    fn set_usbredir(&self, usbredir: rdw4_qemu::UsbRedirHandler) {
         self.inner.usbredir.replace(Some(usbredir));
-    }
-
-    fn set_audio(&self, audio: audio::Handler) {
-        self.inner.audio.replace(Some(audio));
-    }
-
-    fn set_clipboard(&self, cb: clipboard::Handler) {
-        self.inner.clipboard.replace(Some(cb));
     }
 
     fn run(&self) -> glib::ExitCode {
