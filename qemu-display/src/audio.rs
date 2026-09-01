@@ -272,7 +272,7 @@ impl Audio {
             &p0,
         )?;
         self.proxy.register_out_listener(p0).await?;
-        let conn = zbus::connection::Builder::unix_stream(p1).p2p().serve_at(
+        let conn = zbus::connection::Builder::async_io_unix_stream(p1).p2p().serve_at(
             "/org/qemu/Display1/AudioOutListener",
             AudioOutListener { handler },
         )?;
@@ -295,7 +295,7 @@ impl Audio {
             &p0,
         )?;
         self.proxy.register_in_listener(p0).await?;
-        let conn = zbus::connection::Builder::unix_stream(p1).p2p().serve_at(
+        let conn = zbus::connection::Builder::async_io_unix_stream(p1).p2p().serve_at(
             "/org/qemu/Display1/AudioInListener",
             AudioInListener { handler },
         )?;

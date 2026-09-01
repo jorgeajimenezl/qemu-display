@@ -77,7 +77,7 @@ impl Console {
         let task = conn.executor().spawn(
             async move {
                 let stream = UnixStream::from(fd);
-                let conn = connection::Builder::unix_stream(stream)
+                let conn = connection::Builder::async_io_unix_stream(stream)
                     .server(zbus::Guid::generate())
                     .unwrap()
                     .p2p()
