@@ -174,7 +174,7 @@ struct AudioInListener<H: AudioInHandler> {
     handler: H,
 }
 
-#[zbus::interface(name = "org.qemu.Display1.AudioInListener")]
+#[zbus::interface(name = "org.qemu.Display1.AudioInListener", spawn = false)]
 impl<H: AudioInHandler> AudioInListener<H> {
     /// Init method
     async fn init(
