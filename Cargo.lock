@@ -741,23 +741,6 @@ dependencies = [
 [[package]]
 name = "cbindgen"
 version = "0.28.0"
-dependencies = [
- "clap",
- "heck 0.4.1",
- "indexmap",
- "log 0.4.34",
- "proc-macro2",
- "quote",
- "serde",
- "serde_json",
- "syn 2.0.119",
- "tempfile",
- "toml 0.8.23",
-]
-
-[[package]]
-name = "cbindgen"
-version = "0.28.0"
 source = "git+https://gitlab.gnome.org/malureau/rdw.git#d7c38aed1c2cf4743833d587a9135744a745893f"
 dependencies = [
  "clap",
@@ -4317,7 +4300,7 @@ version = "0.1.0"
 dependencies = [
  "log 0.4.34",
  "qemu-display",
- "rdw4 0.1.0 (git+https://gitlab.gnome.org/malureau/rdw.git)",
+ "rdw4",
  "rdw4-qemu",
  "tracing-subscriber",
  "uds_windows",
@@ -4552,37 +4535,7 @@ dependencies = [
 [[package]]
 name = "rdw-keycodemap"
 version = "0.1.0"
-
-[[package]]
-name = "rdw-keycodemap"
-version = "0.1.0"
 source = "git+https://gitlab.gnome.org/malureau/rdw.git#d7c38aed1c2cf4743833d587a9135744a745893f"
-
-[[package]]
-name = "rdw4"
-version = "0.1.0"
-dependencies = [
- "cargo_metadata",
- "cbindgen 0.28.0",
- "derivative",
- "epoxy",
- "futures-channel",
- "futures-util",
- "gdk4-win32",
- "gl",
- "gstreamer",
- "gstreamer-app",
- "gstreamer-audio",
- "gtk4",
- "khronos-egl",
- "libc",
- "libloading 0.9.0",
- "log 0.4.34",
- "rdw-keycodemap 0.1.0",
- "system-deps 9.0.0",
- "usbredirhost",
- "windows",
-]
 
 [[package]]
 name = "rdw4"
@@ -4590,7 +4543,7 @@ version = "0.1.0"
 source = "git+https://gitlab.gnome.org/malureau/rdw.git#d7c38aed1c2cf4743833d587a9135744a745893f"
 dependencies = [
  "cargo_metadata",
- "cbindgen 0.28.0 (git+https://gitlab.gnome.org/malureau/rdw.git)",
+ "cbindgen",
  "derivative",
  "epoxy",
  "futures-channel",
@@ -4608,7 +4561,7 @@ dependencies = [
  "libc",
  "libloading 0.9.0",
  "log 0.4.34",
- "rdw-keycodemap 0.1.0 (git+https://gitlab.gnome.org/malureau/rdw.git)",
+ "rdw-keycodemap",
  "system-deps 9.0.0",
  "usbredirhost",
  "wayland-protocols",
@@ -4619,17 +4572,18 @@ dependencies = [
 [[package]]
 name = "rdw4-qemu"
 version = "0.1.0"
+source = "git+https://gitlab.gnome.org/malureau/rdw.git#d7c38aed1c2cf4743833d587a9135744a745893f"
 dependencies = [
  "async-trait",
  "cargo_metadata",
- "cbindgen 0.28.0",
+ "cbindgen",
  "futures",
  "futures-util",
  "libc",
  "log 0.4.34",
  "pixman-sys",
  "qemu-display",
- "rdw4 0.1.0",
+ "rdw4",
  "system-deps 9.0.0",
  "uds_windows",
  "usbredirhost",
