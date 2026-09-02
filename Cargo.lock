@@ -513,9 +513,9 @@ dependencies = [
 
 [[package]]
 name = "aws-lc-rs"
-version = "1.18.0"
+version = "1.18.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ce2b2dcc879c3bae0d371e77c99f2238400ef24ec001394befa67b6e543add9e"
+checksum = "b281d307588d634de920874890732659e2e7672f72b5e10e81badc1a8a83621e"
 dependencies = [
  "aws-lc-sys",
  "zeroize",
@@ -523,9 +523,9 @@ dependencies = [
 
 [[package]]
 name = "aws-lc-sys"
-version = "0.44.0"
+version = "0.45.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f09fae7be8bb3174e05c6afdb34199e6dc0c7c04ba9fa237b1967adfbde27483"
+checksum = "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27"
 dependencies = [
  "cc",
  "cmake",
@@ -741,7 +741,24 @@ dependencies = [
 [[package]]
 name = "cbindgen"
 version = "0.28.0"
-source = "git+https://gitlab.gnome.org/malureau/rdw.git#19e0d14a85fd901f466f597759e10326368e6720"
+dependencies = [
+ "clap",
+ "heck 0.4.1",
+ "indexmap",
+ "log 0.4.34",
+ "proc-macro2",
+ "quote",
+ "serde",
+ "serde_json",
+ "syn 2.0.119",
+ "tempfile",
+ "toml 0.8.23",
+]
+
+[[package]]
+name = "cbindgen"
+version = "0.28.0"
+source = "git+https://gitlab.gnome.org/malureau/rdw.git#d7c38aed1c2cf4743833d587a9135744a745893f"
 dependencies = [
  "clap",
  "heck 0.4.1",
@@ -3266,9 +3283,9 @@ checksum = "b6d2cec3eae94f9f509c767b45932f1ada8350c4bdb85af2fcab4a3c14807981"
 
 [[package]]
 name = "libredox"
-version = "0.1.21"
+version = "0.1.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7955dfc218a8afb29dfeffd540e3a6e96baeb94fe7138228dd7cc6937fbbf96"
+checksum = "8d8f1ea3f21fd3405dcaf6c9b5c1630af9afc422d9073ea39c5f6d6c772e08ed"
 dependencies = [
  "libc",
 ]
@@ -4298,20 +4315,12 @@ dependencies = [
 name = "qemu-rdw"
 version = "0.1.0"
 dependencies = [
- "async-trait",
- "futures",
- "futures-util",
- "keycodemap",
- "libc",
  "log 0.4.34",
- "once_cell",
- "pixman-sys",
- "pretty_env_logger",
  "qemu-display",
- "rdw4",
+ "rdw4 0.1.0 (git+https://gitlab.gnome.org/malureau/rdw.git)",
+ "rdw4-qemu",
  "tracing-subscriber",
  "uds_windows",
- "usbredirhost",
  "windows",
  "zbus",
 ]
@@ -4543,15 +4552,45 @@ dependencies = [
 [[package]]
 name = "rdw-keycodemap"
 version = "0.1.0"
-source = "git+https://gitlab.gnome.org/malureau/rdw.git#19e0d14a85fd901f466f597759e10326368e6720"
+
+[[package]]
+name = "rdw-keycodemap"
+version = "0.1.0"
+source = "git+https://gitlab.gnome.org/malureau/rdw.git#d7c38aed1c2cf4743833d587a9135744a745893f"
 
 [[package]]
 name = "rdw4"
 version = "0.1.0"
-source = "git+https://gitlab.gnome.org/malureau/rdw.git#19e0d14a85fd901f466f597759e10326368e6720"
 dependencies = [
  "cargo_metadata",
- "cbindgen",
+ "cbindgen 0.28.0",
+ "derivative",
+ "epoxy",
+ "futures-channel",
+ "futures-util",
+ "gdk4-win32",
+ "gl",
+ "gstreamer",
+ "gstreamer-app",
+ "gstreamer-audio",
+ "gtk4",
+ "khronos-egl",
+ "libc",
+ "libloading 0.9.0",
+ "log 0.4.34",
+ "rdw-keycodemap 0.1.0",
+ "system-deps 9.0.0",
+ "usbredirhost",
+ "windows",
+]
+
+[[package]]
+name = "rdw4"
+version = "0.1.0"
+source = "git+https://gitlab.gnome.org/malureau/rdw.git#d7c38aed1c2cf4743833d587a9135744a745893f"
+dependencies = [
+ "cargo_metadata",
+ "cbindgen 0.28.0 (git+https://gitlab.gnome.org/malureau/rdw.git)",
  "derivative",
  "epoxy",
  "futures-channel",
@@ -4569,12 +4608,33 @@ dependencies = [
  "libc",
  "libloading 0.9.0",
  "log 0.4.34",
- "rdw-keycodemap",
+ "rdw-keycodemap 0.1.0 (git+https://gitlab.gnome.org/malureau/rdw.git)",
  "system-deps 9.0.0",
  "usbredirhost",
  "wayland-protocols",
  "windows",
  "x11",
+]
+
+[[package]]
+name = "rdw4-qemu"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "cargo_metadata",
+ "cbindgen 0.28.0",
+ "futures",
+ "futures-util",
+ "libc",
+ "log 0.4.34",
+ "pixman-sys",
+ "qemu-display",
+ "rdw4 0.1.0",
+ "system-deps 9.0.0",
+ "uds_windows",
+ "usbredirhost",
+ "windows",
+ "zbus",
 ]
 
 [[package]]
@@ -5923,9 +5983,9 @@ checksum = "ba73ea9cf16a25df0c8caa16c51acb937d5712a8429db78a3ee29d5dcacd3a65"
 
 [[package]]
 name = "value-bag"
-version = "1.13.2"
+version = "1.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "068e763e8279de7ab94b6afebded2cb701678af094feb1c12ccb061b4783c1be"
+checksum = "2799ffb329a792ecfd902b71306c8a815a6ef1c0470fa9953a6aa4d4cecbe511"
 
 [[package]]
 name = "vcpkg"
