@@ -2,10 +2,6 @@
 use crate::win32::Fd;
 use std::convert::TryInto;
 #[cfg(unix)]
-use std::os::unix::net::UnixStream;
-#[cfg(windows)]
-use uds_windows::UnixStream;
-#[cfg(unix)]
 use zbus::zvariant::Fd;
 use zbus::{names::BusName, Connection};
 
@@ -75,6 +71,8 @@ pub struct Audio {
     pub proxy: AudioProxy<'static>,
     out_listener: Option<Connection>,
     in_listener: Option<Connection>,
+    #[debug(skip)]
+    socket_pair: Option<util::SocketPairFn>,
     #[cfg(windows)]
     peer_pid: u32,
 }
@@ -259,23 +257,31 @@ impl Audio {
             proxy,
             in_listener: None,
             out_listener: None,
+            socket_pair: None,
             #[cfg(windows)]
             peer_pid,
         })
     }
 
+    /// What makes the listeners' socketpairs from now on; `None` makes them here.
+    pub fn set_socket_pair(&mut self, make: Option<util::SocketPairFn>) {
+        self.socket_pair = make;
+    }
+
     pub async fn register_out_listener<H: AudioOutHandler>(&mut self, handler: H) -> Result<()> {
-        let (p0, p1) = UnixStream::pair()?;
+        let (p0, p1) = util::socket_pair(self.socket_pair.as_ref()).await?;
         let p0 = util::prepare_uds_pass(
             #[cfg(windows)]
             self.peer_pid,
             &p0,
         )?;
         self.proxy.register_out_listener(p0).await?;
-        let conn = zbus::connection::Builder::async_io_unix_stream(p1).p2p().serve_at(
-            "/org/qemu/Display1/AudioOutListener",
-            AudioOutListener { handler },
-        )?;
+        let conn = zbus::connection::Builder::async_io_unix_stream(p1)
+            .p2p()
+            .serve_at(
+                "/org/qemu/Display1/AudioOutListener",
+                AudioOutListener { handler },
+            )?;
         #[cfg(windows)]
         let conn = conn.auth_mechanism(zbus::AuthMechanism::Anonymous);
         let conn = conn.build().await?;
@@ -288,17 +294,19 @@ impl Audio {
     }
 
     pub async fn register_in_listener<H: AudioInHandler>(&mut self, handler: H) -> Result<()> {
-        let (p0, p1) = UnixStream::pair()?;
+        let (p0, p1) = util::socket_pair(self.socket_pair.as_ref()).await?;
         let p0 = util::prepare_uds_pass(
             #[cfg(windows)]
             self.peer_pid,
             &p0,
         )?;
         self.proxy.register_in_listener(p0).await?;
-        let conn = zbus::connection::Builder::async_io_unix_stream(p1).p2p().serve_at(
-            "/org/qemu/Display1/AudioInListener",
-            AudioInListener { handler },
-        )?;
+        let conn = zbus::connection::Builder::async_io_unix_stream(p1)
+            .p2p()
+            .serve_at(
+                "/org/qemu/Display1/AudioInListener",
+                AudioInListener { handler },
+            )?;
         #[cfg(windows)]
         let conn = conn.auth_mechanism(zbus::AuthMechanism::Anonymous);
         let conn = conn.build().await?;

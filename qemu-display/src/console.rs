@@ -1,13 +1,9 @@
 #[cfg(windows)]
 use crate::win32::Fd;
-#[cfg(unix)]
-use std::os::unix::net::UnixStream;
 use std::{
     convert::TryFrom,
     sync::{Arc, RwLock},
 };
-#[cfg(windows)]
-use uds_windows::UnixStream;
 #[cfg(unix)]
 use zbus::zvariant::Fd;
 use zbus::{zvariant::ObjectPath, Connection};
@@ -65,6 +61,8 @@ pub struct Console {
     #[debug(skip)]
     pub multi_touch: MultiTouchProxy<'static>,
     listener: Arc<RwLock<Option<Connection>>>,
+    #[debug(skip)]
+    socket_pair: Option<util::SocketPairFn>,
     #[cfg(windows)]
     peer_pid: u32,
 }
@@ -88,9 +86,15 @@ impl Console {
             mouse,
             multi_touch,
             listener: Arc::new(RwLock::new(None)),
+            socket_pair: None,
             #[cfg(windows)]
             peer_pid,
         })
+    }
+
+    /// What makes the listener's socketpair from now on; `None` makes it here.
+    pub fn set_socket_pair(&mut self, make: Option<util::SocketPairFn>) {
+        self.socket_pair = make;
     }
 
     pub async fn label(&self) -> Result<String> {
@@ -107,7 +111,7 @@ impl Console {
 
     #[tracing::instrument(skip(self, handler))]
     pub async fn register_listener<H: ConsoleListenerHandler>(&self, handler: H) -> Result<()> {
-        let (p0, p1) = UnixStream::pair()?;
+        let (p0, p1) = util::socket_pair(self.socket_pair.as_ref()).await?;
         let p0 = util::prepare_uds_pass(
             #[cfg(windows)]
             self.peer_pid,
